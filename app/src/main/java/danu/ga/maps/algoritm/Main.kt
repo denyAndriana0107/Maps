@@ -5,6 +5,8 @@ import unpas.ac.maps.algoritm.City
 import unpas.ac.maps.algoritm.Population
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 class Main {
 
@@ -35,7 +37,7 @@ fun main(){
     val current = LocalDateTime.now()
     val formatter = DateTimeFormatter.ofPattern("HH.mm")
     val formatted = current.format(formatter)
-    val time:Double = 7.1
+    val time:Double = 10.1
     for (i in 0 until pathArray.size){
         if (pathArray[i].tutup!! > time && pathArray[i].buka!! < time){
             jumlah ++
@@ -50,30 +52,55 @@ fun main(){
     val pop: Population = Population(4,jumlah, 1.0, 0.5)
     if (GAUSE){
         pop.FitnessOrder()
-    }
-    while (numberOfGenerations !== stopAt) {
-        //Select / Crossover
-        while (pop.Mate() == false);
-        //Mutate
-        for (i in 0 until pop.getNextGen().size) {
-            pop.getNextGen()[i]!!.setPath(pop.Mutation(pop.getNextGen()[i]!!.getPath()))
+        for (i in 0 until pop.getPopulation().size) {
+            println("Path ID: " + i + " | Cost: " + pop.getPopulation().get(i)!!.getCost() + " | Fitness: " + pop.getPopulation().get(i)!!.getFitness() + "%")
+            print("Path is: ")
+            for (j in 0 until pop.getPopulation().get(i)!!.getPath().size) {
+                print(pop.getPopulation().get(i)!!.getPath().get(j)!!.getID().toString() + "(" + pop.getPopulation().get(i)!!.getPath().get(j)!!.getLat() + "," + pop.getPopulation().get(i)!!.getPath().get(j)!!.getLng() +
+                        ","+ pop.getPopulation().get(i)!!.getPath().get(j)!!.getBuka().toString()+","+pop.getPopulation().get(i)!!.getPath().get(j)!!.getTutup()+")  ")
+            }
+            println("\n -----------------------------------------------------")
         }
 
-        //Setting the new Generation to current Generation
-        pop.setPopulation(pop.getNextGen())
-        pop.setDone(0)
-        //Sorting the new population from Finess / Evaluating
-        pop.FitnessOrder()
-        //Incremente number of Generations
-        numberOfGenerations++
+        while (numberOfGenerations !== stopAt) {
+
+            //Select / Crossover
+            while (pop.Mate() == false);
+            //Mutate
+            for (i in 0 until pop.getNextGen().size) {
+                pop.getNextGen()[i]!!.setPath(pop.Mutation(pop.getNextGen()[i]!!.getPath()))
+            }
+
+            //Setting the new Generation to current Generation
+            pop.setPopulation(pop.getNextGen())
+            pop.setDone(0)
+            //Sorting the new population from Finess / Evaluating
+            pop.FitnessOrder()
+            //Incremente number of Generations
+            numberOfGenerations++
+        }
+
+        var valor = 0.0
+        for (i in 0 until pop.getPopulation().size) {
+            valor += pop.getPopulation()[i]!!.getFitness()!!.toDouble()
+            println("Value of Fitness: " + pop.getPopulation()[i]!!.getFitness() + "%")
+        }
+        println("")
+        println("Total Fitness: $valor%")
+
+        println("\n-----------------------------------------------")
+
+        for (i in 0 until pop.getPopulation().size) {
+            println("Path ID: " + i + " | Cost: Rp." + pop.getPopulation()[i]!!.getCost()!!.toInt()*1000 +"| Jarak: ${pop.getPopulation()[i]!!.getCost()} KM"+ " | Fitness: " + pop.getPopulation()[i]!!.getFitness() + "%")
+            print("Path is: ")
+            for (j in 0 until pop.getPopulation()[i]!!.getPath().size) {
+                print(pop.getPopulation()[i]!!.getPath()[j]!!.id.toString() + "(" + pop.getPopulation()[i]!!.getPath()[j]!!.getLat() + "," + pop.getPopulation()[i]!!.getPath()[j]!!.getLng() + ")  ")
+            }
+            println("\n -----------------------------------------------------")
+        }
+
+
     }
-                for (i in 0 until pop.getPopulation().size) {
-                    println("Path ID: " + i + " | Cost: " + pop.getPopulation()[i]!!.getCost() + " | Fitness: " + pop.getPopulation()[i]!!.getFitness() + "%")
-                    print("Path is: ")
-                    for (j in 0 until pop.getPopulation()[i]!!.getPath().size) {
-                        print(pop.getPopulation()[i]!!.getPath()[j]!!.id.toString() + "(" + pop.getPopulation()[i]!!.getPath()[j]!!.getLat() + "," + pop.getPopulation()[i]!!.getPath()[j]!!.getLng() + ")  ")
-                    }
-                    println("\n -----------------------------------------------------")
-                }
+
 
 }

@@ -74,7 +74,7 @@ class Path:Comparable<Path>  {
         val current = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("HH.mm")
         val formatted = current.format(formatter)
-        val time:Double = 7.1
+        val time:Double = 8.1
 
         //memasukan ke array utama
         var list:MutableList<City> = mutableListOf()
