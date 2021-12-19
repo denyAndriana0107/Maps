@@ -8,4 +8,6 @@ import unpas.ac.id.maps.network.model.KordinatResponse
 interface KordinatServices {
     @GET("Wisata")
     fun getData(): Call<KordinatResponse>
+    @GET("Majalengka")
+    fun getDataMajalengka(): Call<KordinatResponse>
 }

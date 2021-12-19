@@ -7,8 +7,8 @@
     tools:context=".MainActivity">
 
     <fragment
-        android:id="@+id/fragment"
-        android:name="danu.ga.maps.fragment.MapsFragment"
+        android:id="@+id/fragment2"
+        android:name="danu.ga.maps.fragment.MapsFragment2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

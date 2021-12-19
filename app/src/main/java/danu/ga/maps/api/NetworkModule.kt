@@ -6,6 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import unpas.ac.id.maps.network.Constant.Companion.BASE_URL
 
+
 class NetworkModule {
     companion object{
 
