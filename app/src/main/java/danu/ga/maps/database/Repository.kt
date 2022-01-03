@@ -8,4 +8,7 @@ class Repository(private val wisataDao: WisataDao) {
     suspend fun insertWisata(wisata: Wisata){
         wisataDao.insertData(wisata)
     }
+    suspend fun updateWisata(boolean: Boolean){
+        wisataDao.updateData(boolean)
+    }
 }

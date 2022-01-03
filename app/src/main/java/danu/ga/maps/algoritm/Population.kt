@@ -23,7 +23,17 @@ class Population {
         val p = Path(numCity)
         done = 0
         createPopulation(p)
+    }
 
+    constructor (populationSize: Int, numCities: Int, path: Path?, crossoverRage: Double, mutationRate: Double) {
+        this.populationSize = populationSize
+        numCity = numCities
+        this.crossOverRate = crossoverRage
+        population = arrayOfNulls(populationSize)
+        this.mutationRate = mutationRate
+        nextGen = arrayOfNulls(populationSize)
+        done = 0
+        createPopulation(path!!)
     }
 
     // Init Population Wisata

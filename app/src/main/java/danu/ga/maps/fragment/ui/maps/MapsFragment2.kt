@@ -1,8 +1,6 @@
-package danu.ga.maps.fragment
+package danu.ga.maps.fragment.ui.maps
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.location.Location
 import androidx.fragment.app.Fragment
 
@@ -12,7 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.*
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -21,15 +19,19 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import danu.ga.maps.R
+import danu.ga.maps.api.model.KordinatResponse
+import danu.ga.maps.fragment.HomeNav
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import unpas.ac.id.maps.network.model.KordinatResponse
+import unpas.ac.id.maps.data.Wisata
+import unpas.ac.id.maps.viewModel.WisataViewModel
 import unpas.ac.maps.algoritm.City
 import unpas.ac.maps.algoritm.Population
 import unpas.ac.maps.network.NetworkModule
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.roundToInt
 
 class MapsFragment2 : Fragment() {
     private lateinit var mMap: GoogleMap
@@ -43,11 +45,12 @@ class MapsFragment2 : Fragment() {
     private lateinit var kordinatUpdate:LatLng
     private var listMutasiKordinatPath:MutableList<LatLng> = mutableListOf()
     private var polyline:Polyline ?= null
+    private var cost:Int ?= null
+    lateinit var wisataViewModel: WisataViewModel
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         mMap = googleMap
-
-
+        wisataViewModel = ViewModelProvider(this).get(WisataViewModel::class.java)
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location->
             if (location==null){
                 Toast.makeText(
@@ -57,29 +60,26 @@ class MapsFragment2 : Fragment() {
                 ).show()
             }
             else {
+                val setFragment = HomeNav()
                 val myLocation = LatLng(location!!.latitude, location!!.longitude)
                 //Mutasi
 
                 var jumlah:Int = 0
-                var pathArray:Array<City> = Array(4){ City(0, 0.0, 0.0,0,0) }
-                pathArray[0] = City(1,-6.833750768927492,108.23349724087834,6,20)
-                pathArray[1] = City(2,-6.837117742309791,108.23474243750054,8,15)
-                pathArray[2] = City(3,-6.835167279563472,108.22778017155827,6,21)
-                pathArray[3] = City(4,-6.83291815821884,108.2148901562182,7,18)
-//                pathArray[0]= City(1 , -7.141948728625862, 107.42001699715476, 7,17)
-//                pathArray[1]= City(2, -7.13786837250741, 107.4003322683194, 7, 17)
-//                pathArray[2]= City(3, -7.147259667366287, 107.43302599715466, 7, 17)
-//                pathArray[3]= City(4, -7.140309854149551, 107.40050826831946, 7, 17)
-//                pathArray[4]= City(5, -7.134110954021378, 107.42146499715453, 8, 21)
-//                pathArray[5]= City(6, -7.1263228460283345, 107.4213933529785, 8, 21)
-//                pathArray[6]= City(7, -7.131829661631447, 107.42214335297857, 8, 21)
-//                pathArray[7]= City(8, -7.134542142316982, 107.42175399715457, 8, 21)
-//                pathArray[8]= City(9, -7.162362963217781, 107.43179799715483, 9, 17)
-//                pathArray[9]= City(10, -7.158514509943944, 107.41803662414344, 9, 21)
-//                pathArray[10]= City (11, -7.133991370886841, 107.42228635297856, 9, 17)
-//                pathArray[11]= City(12, -7.127602305985058, 107.43041099715458, 10, 21)
-//                pathArray[12]= City(13, -7.127168138379776, 107.43032926831937, 10, 21)
-//                pathArray[13]= City( 14, -7.130162723424981, 107.43236826831934, 10, 21)
+                var pathArray:Array<City> = Array(14){ City(0, 0.0, 0.0,0,0) }
+                pathArray[0]= City(1 , -7.141948728625862, 107.42001699715476, 7,17)
+                pathArray[1]= City(2, -7.13786837250741, 107.4003322683194, 7, 17)
+                pathArray[2]= City(3, -7.147259667366287, 107.43302599715466, 7, 17)
+                pathArray[3]= City(4, -7.140309854149551, 107.40050826831946, 7, 17)
+                pathArray[4]= City(5, -7.134110954021378, 107.42146499715453, 8, 21)
+                pathArray[5]= City(6, -7.1263228460283345, 107.4213933529785, 8, 21)
+                pathArray[6]= City(7, -7.131829661631447, 107.42214335297857, 8, 21)
+                pathArray[7]= City(8, -7.134542142316982, 107.42175399715457, 8, 21)
+                pathArray[8]= City(9, -7.162362963217781, 107.43179799715483, 9, 17)
+                pathArray[9]= City(10, -7.158514509943944, 107.41803662414344, 9, 21)
+                pathArray[10]= City (11, -7.133991370886841, 107.42228635297856, 9, 17)
+                pathArray[11]= City(12, -7.127602305985058, 107.43041099715458, 10, 21)
+                pathArray[12]= City(13, -7.127168138379776, 107.43032926831937, 10, 21)
+                pathArray[13]= City( 14, -7.130162723424981, 107.43236826831934, 10, 21)
 
                 val currentTimestamp = System.currentTimeMillis()
                 val current = LocalDateTime.now()
@@ -91,7 +91,8 @@ class MapsFragment2 : Fragment() {
                         jumlah ++
                     }
                 }
-                print("jumlah adalah $jumlah")
+
+                //seleksi jumlah
                 listMutasiKordinatPath = ArrayList(jumlah+1)
 
                 if(jumlah != 0 ){
@@ -121,9 +122,14 @@ class MapsFragment2 : Fragment() {
                     for (j in 0 until pop.getPopulation()[pop.getPopulationSize()-1]!!.getPath().size){
                         listMutasiKordinatPath.add(LatLng(pop.getPopulation()[pop.getPopulationSize()-1]!!.getPath()[j]!!.getLat()!!.toDouble(),
                                 pop.getPopulation()[pop.getPopulationSize()-1]!!.getPath()[j]!!.getLng()!!.toDouble()))
-
                     }
-                    NetworkModule.servicesKordinat().getDataMajalengka().enqueue(object :
+                    cost = pop.getPopulation()[pop.getPopulationSize()-1]!!.getCost()?.roundToInt()!!*1000
+                    val number:Double = pop.getPopulation()[pop.getPopulationSize()-1]!!.getCost()!!
+                    val number3digits:Double = String.format("%.3f", number).toDouble()
+                    val number2digits:Double = String.format("%.2f", number3digits).toDouble()
+                    wisataViewModel.insertData(Wisata(1,true,cost!!,number2digits))
+                    wisataViewModel.updateData(true)
+                    NetworkModule.servicesKordinat().getData().enqueue(object :
                             Callback<KordinatResponse> {
                         override fun onResponse(
                                 call: Call<KordinatResponse>,
@@ -173,9 +179,6 @@ class MapsFragment2 : Fragment() {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 10.0f))
                     mMap.animateCamera(CameraUpdateFactory.zoomIn())
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(10.0f), 2000, null)
-
-
-                    // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
                     val cameraPosition = CameraPosition.Builder()
                             .target(myLocation) // Sets the center of the map to Mountain View
                             .zoom(17f) // Sets the zoom
@@ -190,7 +193,7 @@ class MapsFragment2 : Fragment() {
                     fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback,
                             Looper.getMainLooper())
                     }else{
-                        NetworkModule.servicesKordinat().getDataMajalengka().enqueue(object :Callback<KordinatResponse>{
+                        NetworkModule.servicesKordinat().getData().enqueue(object :Callback<KordinatResponse>{
                             override fun onResponse(call: Call<KordinatResponse>, response: Response<KordinatResponse>) {
                                 if(response.isSuccessful){
                                     val data = response.body()?.body
@@ -224,6 +227,23 @@ class MapsFragment2 : Fragment() {
                             }
 
                         })
+
+                    //add Marker )
+                    mMap.addMarker(MarkerOptions().position(myLocation).title("My Location"))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 10.0f))
+                    mMap.animateCamera(CameraUpdateFactory.zoomIn())
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(10.0f), 2000, null)
+
+
+                    // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
+                    val cameraPosition = CameraPosition.Builder()
+                            .target(myLocation) // Sets the center of the map to Mountain View
+                            .zoom(17f) // Sets the zoom
+                            .bearing(90f) // Sets the orientation of the camera to east
+                            .tilt(30f) // Sets the tilt of the camera to 30 degrees
+                            .build() // Creates a CameraPosition from the builder
+
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
                     }
                 }
 
@@ -283,7 +303,7 @@ class MapsFragment2 : Fragment() {
             kordinatUpdate = LatLng(currentLocation.latitude,currentLocation.longitude)
             var a = MarkerOptions().position(kordinatUpdate)
             marker = mMap.addMarker(a.title("My Location"))
-            NetworkModule.servicesKordinat().getDataMajalengka().enqueue(object :
+            NetworkModule.servicesKordinat().getData().enqueue(object :
                     Callback<KordinatResponse> {
                 override fun onResponse(
                         call: Call<KordinatResponse>,
@@ -332,10 +352,14 @@ class MapsFragment2 : Fragment() {
             kordinatUpdate = LatLng(currentLocation.latitude,currentLocation.longitude)
             marker!!.setPosition(kordinatUpdate)
             listMutasiKordinatPath.set(0,kordinatUpdate)
-            polyline!!.setPoints(listMutasiKordinatPath)
-            Toast.makeText(this.requireContext(),"${listMutasiKordinatPath.size}",Toast.LENGTH_LONG).show()
+            polyline?.setPoints(listMutasiKordinatPath)
 
         }
 
     }
+
+    fun dataCost():Int?{
+        return this.cost?.plus(100)
+    }
+
 }

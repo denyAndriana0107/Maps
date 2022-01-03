@@ -7,9 +7,7 @@ import androidx.room.PrimaryKey
 data class Wisata (
         @PrimaryKey(autoGenerate = true)
         val id:Int,
-        val nama:String,
-        val lat:Double,
-        val lng:Double,
-        val buka:Int,
-        val tutup:Int
+        val button:Boolean,
+        val cost:Int,
+        val jarak:Double
         )

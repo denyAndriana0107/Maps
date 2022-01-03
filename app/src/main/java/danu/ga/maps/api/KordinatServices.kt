@@ -1,8 +1,9 @@
 package unpas.ac.maps.network
 
+import danu.ga.maps.api.model.KordinatResponse
 import retrofit2.Call
 import retrofit2.http.GET
-import unpas.ac.id.maps.network.model.KordinatResponse
+import retrofit2.http.Query
 
 
 interface KordinatServices {
@@ -10,4 +11,6 @@ interface KordinatServices {
     fun getData(): Call<KordinatResponse>
     @GET("Majalengka")
     fun getDataMajalengka(): Call<KordinatResponse>
+    @GET("Wisata")
+    fun getDataPerJam(@Query("Waktu Buka") int: String):Call<KordinatResponse>
 }

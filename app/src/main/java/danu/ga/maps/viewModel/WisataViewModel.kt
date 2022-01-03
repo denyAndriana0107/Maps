@@ -25,4 +25,9 @@ class WisataViewModel(application: Application):AndroidViewModel(application) {
             repository.insertWisata(wisata)
         }
     }
+    fun updateData(boolean: Boolean){
+        viewModelScope.launch (Dispatchers.IO){
+            repository.updateWisata(boolean)
+        }
+    }
 }
