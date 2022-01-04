@@ -13,4 +13,8 @@ interface WisataDao {
 
     @Query("UPDATE wisata_master SET button=:boolean WHERE id = 1")
     fun updateData(boolean: Boolean)
+
+    @Query("UPDATE wisata_master SET cost=:cost,jarak=:jarak WHERE id = 1")
+    fun updateCost(cost:Int,jarak:Double)
+
 }

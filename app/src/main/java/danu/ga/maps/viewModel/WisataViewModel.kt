@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import unpas.ac.id.maps.data.Wisata
 import unpas.ac.id.maps.data.WisataDatabase
 import unpas.ac.id.maps.data.Repository
+import javax.xml.transform.dom.DOMLocator
 
 class WisataViewModel(application: Application):AndroidViewModel(application) {
     val readData:LiveData<List<Wisata>>
@@ -28,6 +29,11 @@ class WisataViewModel(application: Application):AndroidViewModel(application) {
     fun updateData(boolean: Boolean){
         viewModelScope.launch (Dispatchers.IO){
             repository.updateWisata(boolean)
+        }
+    }
+    fun updateCost(cost:Int,jaral:Double){
+        viewModelScope.launch (Dispatchers.IO){
+            repository.updateCost(cost,jaral)
         }
     }
 }

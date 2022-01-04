@@ -11,4 +11,7 @@ class Repository(private val wisataDao: WisataDao) {
     suspend fun updateWisata(boolean: Boolean){
         wisataDao.updateData(boolean)
     }
+    suspend fun updateCost(cost:Int,jarak:Double){
+        wisataDao.updateCost(cost,jarak)
+    }
 }

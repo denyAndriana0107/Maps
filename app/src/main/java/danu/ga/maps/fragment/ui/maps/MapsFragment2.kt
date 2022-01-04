@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.*
 
@@ -61,7 +62,7 @@ class MapsFragment2 : Fragment() {
             }
             else {
                 val setFragment = HomeNav()
-                val myLocation = LatLng(location!!.latitude, location!!.longitude)
+                val myLocation = LatLng(location.latitude, location.longitude)
                 //Mutasi
 
                 var jumlah:Int = 0
@@ -96,14 +97,14 @@ class MapsFragment2 : Fragment() {
                 listMutasiKordinatPath = ArrayList(jumlah+1)
 
                 if(jumlah != 0 ){
-                    var numberOfGenerations:Int = 4
+                    var numberOfGenerations:Int = 0
                     val stopAt:Int= 2500
                     val GAUSE = true
-                    val pop: Population = Population(4,jumlah, 1.0, 1.0)
+                    val pop: Population = Population(30,jumlah, 1.0, 1.0)
                     if (GAUSE){
                         pop.FitnessOrder()
                     }
-                    while (numberOfGenerations !== stopAt) {
+                    while (numberOfGenerations != stopAt) {
                         //Select / Crossover
                         while (pop.Mate() == false);
                         //Mutate
@@ -123,11 +124,19 @@ class MapsFragment2 : Fragment() {
                         listMutasiKordinatPath.add(LatLng(pop.getPopulation()[pop.getPopulationSize()-1]!!.getPath()[j]!!.getLat()!!.toDouble(),
                                 pop.getPopulation()[pop.getPopulationSize()-1]!!.getPath()[j]!!.getLng()!!.toDouble()))
                     }
-                    cost = pop.getPopulation()[pop.getPopulationSize()-1]!!.getCost()?.roundToInt()!!*1000
+
+                    //add data to database
+                    cost = pop.getPopulation()[pop.getPopulationSize() - 1]?.getCost()!!.roundToInt()*1000
                     val number:Double = pop.getPopulation()[pop.getPopulationSize()-1]!!.getCost()!!
-                    val number3digits:Double = String.format("%.3f", number).toDouble()
-                    val number2digits:Double = String.format("%.2f", number3digits).toDouble()
-                    wisataViewModel.insertData(Wisata(1,true,cost!!,number2digits))
+                    val number3digits:Double = Math.round(number * 1000.0)/1000.0
+                    val number2digits:Double = Math.round(number3digits * 100.0)/100.0
+                    wisataViewModel.readData.observe(this, Observer {
+                        if (it.size==0){
+                            wisataViewModel.insertData(Wisata(1,true,cost!!,number2digits))
+                        }else{
+                            wisataViewModel.updateCost(cost!!,number2digits)
+                        }
+                    })
                     wisataViewModel.updateData(true)
                     NetworkModule.servicesKordinat().getData().enqueue(object :
                             Callback<KordinatResponse> {
